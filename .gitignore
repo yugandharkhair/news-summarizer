@@ -1,0 +1,71 @@
+# Environment variables and API keys
+.env
+.flaskenv
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+.python-venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# HuggingFace cache and downloaded models
+.cache/
+.huggingface/
+models/
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# Flask stuff
+instance/
+.webassets-cache
+flask_session/
+
+# PyCharm / VS Code / other IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+.project
+.pydevproject
+.settings/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Test coverage
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+coverage/
+
+# Jupyter notebooks (if used for development)
+.ipynb_checkpoints
+
+# Temporary files
+tmp/
+temp/

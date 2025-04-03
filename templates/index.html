@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML-Powered News Summarizer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="text-center my-4">
+            <h1>ML-Powered News Summarizer</h1>
+            <p class="lead">Get AI-generated summaries of news articles using advanced NLP models</p>
+        </header>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">News Filters</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="newsFilterForm">
+                            <div class="mb-3">
+                                <label for="categorySelect" class="form-label">Category</label>
+                                <select class="form-select" id="categorySelect">
+                                    <option value="technology">Technology</option>
+                                    <option value="business">Business</option>
+                                    <option value="science">Science</option>
+                                    <option value="health">Health</option>
+                                    <option value="entertainment">Entertainment</option>
+                                    <option value="sports">Sports</option>
+                                    <option value="general">General</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="countrySelect" class="form-label">Country</label>
+                                <select class="form-select" id="countrySelect">
+                                    <option value="us">United States</option>
+                                    <option value="gb">United Kingdom</option>
+                                    <option value="ca">Canada</option>
+                                    <option value="au">Australia</option>
+                                    <option value="in">India</option>
+                                    <option value="de">Germany</option>
+                                    <option value="fr">France</option>
+                                    <option value="jp">Japan</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="searchQuery" class="form-label">Search (Optional)</label>
+                                <input type="text" class="form-control" id="searchQuery" placeholder="Enter keywords">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100">Get News</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">Direct Text Summarization</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="textSummarizationForm">
+                            <div class="mb-3">
+                                <label for="directText" class="form-label">Paste text to summarize</label>
+                                <textarea class="form-control" id="directText" rows="5" placeholder="Paste or type text here..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100" id="summarizeTextBtn">Summarize Text</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div id="loadingSpinner" class="text-center d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading news articles...</p>
+                </div>
+                
+                <div id="articlesList"></div>
+                
+                <div id="summaryContainer" class="card mb-4 d-none">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Summary Results</h5>
+                        <button type="button" class="btn-close btn-close-white" id="closeSummary"></button>
+                    </div>
+                    <div class="card-body">
+                        <h4 id="summaryTitle"></h4>
+                        <div class="mb-3">
+                            <p><strong>Original Text:</strong></p>
+                            <div id="originalText" class="p-3 bg-light"></div>
+                        </div>
+                        <div class="mb-3">
+                            <p><strong>AI Summary:</strong></p>
+                            <div id="generatedSummary" class="p-3 bg-light"></div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span id="processingTime" class="text-muted"></span>
+                            <a id="articleLink" href="#" target="_blank" class="btn btn-outline-primary btn-sm">Read Full Article</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="textSummaryContainer" class="card mb-4 d-none">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Text Summary Results</h5>
+                        <button type="button" class="btn-close btn-close-white" id="closeTextSummary"></button>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <p><strong>Original Text:</strong></p>
+                            <div id="textOriginal" class="p-3 bg-light"></div>
+                        </div>
+                        <div class="mb-3">
+                            <p><strong>AI Summary:</strong></p>
+                            <div id="textSummary" class="p-3 bg-light"></div>
+                        </div>
+                        <div>
+                            <span id="textProcessingTime" class="text-muted"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-danger d-none" id="errorAlert" role="alert">
+                    <strong>Error:</strong> <span id="errorMessage"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">ML-Powered News Summarizer using HuggingFace Transformers and Flask</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
