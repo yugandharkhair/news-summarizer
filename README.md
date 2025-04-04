@@ -57,7 +57,7 @@ A modern web application that uses machine learning to automatically summarize n
 
 2. Create a virtual environment:
    ```
-   python -m venv venv
+   python3 -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
@@ -73,7 +73,7 @@ A modern web application that uses machine learning to automatically summarize n
 
 5. Run the application:
    ```
-   python app.py
+   python3 app.py
    ```
 
 6. Open your browser and navigate to `http://127.0.0.1:5000`
