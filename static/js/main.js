@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        if (articles.length >= 10) {
+        if (articles.length > 0) {  // Changed from articles.length >= 10
             loadMoreContainer.classList.remove('d-none');
         } else {
             loadMoreContainer.classList.add('d-none');
