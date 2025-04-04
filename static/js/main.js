@@ -10,6 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const textSummaryContainer = document.getElementById('textSummaryContainer');
     const closeSummary = document.getElementById('closeSummary');
     const closeTextSummary = document.getElementById('closeTextSummary');
+    const loadMoreContainer = document.getElementById('loadMoreContainer');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    let currentPage = 1;
+    let currentCategory = 'technology';
+    let currentQuery = '';
+
     
     // On page load, fetch default news
     fetchNews();
@@ -32,32 +38,52 @@ document.addEventListener('DOMContentLoaded', function() {
     closeTextSummary.addEventListener('click', function() {
         textSummaryContainer.classList.add('d-none');
     });
+
+    // Add event listener for Load More button
+    loadMoreBtn.addEventListener('click', function() {
+        currentPage++;
+        fetchNews(currentPage, true);
+    });
     
     /**
      * Fetch news articles based on selected filters
      */
-    function fetchNews() {
+   // Update the fetchNews function to remove country parameter
+   function fetchNews(page = 1, append = false) {
         // Show loading spinner
-        loadingSpinner.classList.remove('d-none');
-        articlesList.innerHTML = '';
+        if (!append) {
+            loadingSpinner.classList.remove('d-none');
+            articlesList.innerHTML = '';
+            currentPage = 1;
+        }
         
         // Hide summary containers
         summaryContainer.classList.add('d-none');
         textSummaryContainer.classList.add('d-none');
         
         // Get filter values
-        const category = document.getElementById('categorySelect').value;
-        const country = document.getElementById('countrySelect').value;
-        const query = document.getElementById('searchQuery').value;
+        currentCategory = document.getElementById('categorySelect').value;
+        currentQuery = document.getElementById('searchQuery').value;
         
-        // Fetch news from API
-        fetch(`/get_news?category=${category}&country=${country}&query=${query}`)
+        // Fetch news from API with page parameter
+        fetch(`/get_news?category=${currentCategory}&query=${currentQuery}&page=${page}`)
             .then(response => response.json())
             .then(data => {
                 loadingSpinner.classList.add('d-none');
                 
                 if (data.success) {
-                    displayArticles(data.articles);
+                    if (append) {
+                        appendArticles(data.articles);
+                    } else {
+                        displayArticles(data.articles);
+                    }
+                    
+                    // Show/hide Load More button based on whether there are more articles
+                    if (data.articles.length < 10) {
+                        loadMoreContainer.classList.add('d-none');
+                    } else {
+                        loadMoreContainer.classList.remove('d-none');
+                    }
                 } else {
                     showError('Failed to fetch news articles');
                 }
@@ -67,6 +93,62 @@ document.addEventListener('DOMContentLoaded', function() {
                 showError('Network error. Please try again later.');
                 console.error('Error:', error);
             });
+    }
+
+    function appendArticles(articles) {
+        if (articles.length === 0) {
+            loadMoreContainer.classList.add('d-none');
+            return;
+        }
+        
+        const articlesRow = document.querySelector('#articlesList .row');
+        
+        articles.forEach(article => {
+            // Default image if none is provided
+            const imageUrl = article.urlToImage || 'https://via.placeholder.com/300x200?text=No+Image';
+            
+            // Truncate description if too long
+            const description = article.description ? 
+                (article.description.length > 120 ? article.description.substring(0, 120) + '...' : article.description) : 
+                'No description available';
+            
+            const articleElement = document.createElement('div');
+            articleElement.className = 'col-md-6 mb-4';
+            articleElement.innerHTML = `
+                <div class="card h-100 news-card" data-url="${article.url}">
+                    <img src="${imageUrl}" class="card-img-top news-image" alt="${article.title}">
+                    <div class="card-body">
+                        <h5 class="card-title">${article.title}</h5>
+                        <p class="card-text">${description}</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <small class="text-muted">${formatDate(article.publishedAt)}</small>
+                        <button class="btn btn-primary btn-sm summarize-btn" data-url="${article.url}">Summarize</button>
+                    </div>
+                </div>
+            `;
+            
+            articlesRow.appendChild(articleElement);
+        });
+        
+        // Add event listeners to summarize buttons for new articles
+        document.querySelectorAll('.summarize-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                summarizeArticle(this.dataset.url);
+            });
+        });
+        
+        // Add event listeners to cards for new articles
+        document.querySelectorAll('.news-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                // Open article in new tab when card is clicked
+                if (!e.target.classList.contains('summarize-btn')) {
+                    window.open(this.dataset.url, '_blank');
+                }
+            });
+        });
     }
     
     /**
@@ -79,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     No articles found. Try different filters.
                 </div>
             `;
+            loadMoreContainer.classList.add('d-none');
             return;
         }
         
@@ -131,6 +214,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+
+        if (articles.length >= 10) {
+            loadMoreContainer.classList.remove('d-none');
+        } else {
+            loadMoreContainer.classList.add('d-none');
+        }
     }
     
     /**

@@ -12,7 +12,7 @@ class NewsFetcher:
         self.api_key = api_key
         self.base_url = NEWS_API_URL
         
-    def get_articles(self, country=DEFAULT_COUNTRY, category=DEFAULT_CATEGORY, query=None, page_size=ARTICLE_LIMIT):
+    def get_articles(self, country=DEFAULT_COUNTRY, category=DEFAULT_CATEGORY, query=None, page=1, page_size=ARTICLE_LIMIT):
         """
         Fetch articles from News API
         
@@ -20,7 +20,8 @@ class NewsFetcher:
             country (str): 2-letter ISO 3166-1 country code
             category (str): News category (business, entertainment, health, science, sports, technology)
             query (str, optional): Keywords to search for
-            page_size (int): Number of articles to return
+            page (int): Page number for paginated results
+            page_size (int): Number of articles per page
             
         Returns:
             list: List of article dictionaries
@@ -28,7 +29,8 @@ class NewsFetcher:
         params = {
             'apiKey': self.api_key,
             'country': country,
-            'pageSize': page_size
+            'pageSize': page_size,
+            'page': page
         }
         
         if category:
@@ -47,7 +49,7 @@ class NewsFetcher:
             # Clean up articles - remove those without content
             valid_articles = [article for article in articles if article.get('content')]
             
-            logger.info(f"Fetched {len(valid_articles)} valid articles")
+            logger.info(f"Fetched {len(valid_articles)} valid articles for page {page}")
             return valid_articles
             
         except requests.exceptions.RequestException as e:

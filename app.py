@@ -31,12 +31,21 @@ def index():
 
 @app.route('/get_news')
 def get_news():
-    """Fetch news articles based on category and country"""
+    """Fetch news articles based on category and page"""
     category = request.args.get('category', 'technology')
-    country = request.args.get('country', 'us')
     query = request.args.get('query', '')
+    page = int(request.args.get('page', 1))
     
-    articles = news_fetcher.get_articles(country=country, category=category, query=query)
+    # Calculate offset for pagination
+    page_size = 10
+    
+    articles = news_fetcher.get_articles(
+        country='us', 
+        category=category, 
+        query=query, 
+        page=page,
+        page_size=page_size
+    )
     
     return jsonify({
         'success': True,
